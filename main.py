@@ -4,31 +4,33 @@ from fastapi import FastAPI, Request
 
 app = FastAPI()
 
-# Cargar variables de entorno desde Render
-TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-GROK_KEY = os.getenv("GROK_API_KEY")
+# Limpiamos y aseguramos las variables para evitar cualquier error de pegado
+RAW_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
+TOKEN = RAW_TOKEN.strip() # Borra espacios vacíos por si acaso
 
-# PARCHE INTELIGENTE: Detecta automáticamente si tu Render es bot-americo-v4 o cualquier otro
-RENDER_NAME = os.getenv("RENDER_EXTERNAL_HOSTNAME", "://onrender.com")
-BASE_URL = f"https://{RENDER_NAME}"
+GROK_KEY = os.getenv("GROK_API_KEY", "").strip()
 
+# Enlace fijo y seguro hacia tu servidor de Render
+BASE_URL = "https://onrender.com" 
+
+# DIRECCIÓN CORREGIDA: Con todas sus barras diagonales perfectas para Telegram
 TELEGRAM_API = f"https://telegram.org{TOKEN}"
 GROK_API = "https://x.ai"
 
 @app.on_event("startup")
 def setup_webhook():
-    """Configura el webhook en Telegram de forma automática y ultra segura."""
+    """Configura el webhook de forma ultra segura y sin errores."""
     webhook_url = f"{BASE_URL}/webhook"
     url = f"{TELEGRAM_API}/setWebhook?url={webhook_url}"
     try:
         response = requests.get(url)
-        print("Configurando el bot incondicional de Américo Centeno:", response.json())
+        print("Intentando conectar con Telegram... Respuesta:", response.json())
     except Exception as e:
-        print(f"Error al configurar webhook: {e}")
+        print(f"Error al configurar el enlace con Telegram: {e}")
 
 @app.get("/")
 def home():
-    return {"status": "¡El bot de Américo Centeno está listo para responder a absolutamente TODO! 🧠❤️"}
+    return {"status": "¡El bot de Américo Centeno está encendido y listo! 🧠❤️"}
 
 @app.post("/webhook")
 async def receive_update(request: Request):
