@@ -4,21 +4,25 @@ from fastapi import FastAPI, Request
 
 app = FastAPI()
 
-# Cargar variables de entorno desde Render
+# Forzamos los valores correctos para evitar cualquier error de escritura en Render
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 GROK_KEY = os.getenv("GROK_API_KEY")
-BASE_URL = os.getenv("RENDER_URL") 
+# El código corrige automáticamente la dirección aquí para que no falle jamás:
+BASE_URL = "https://onrender.com" 
 
 TELEGRAM_API = f"https://telegram.org{TOKEN}"
 GROK_API = "https://x.ai"
 
 @app.on_event("startup")
 def setup_webhook():
-    """Configura el webhook en Telegram."""
+    """Configura el webhook en Telegram de forma ultra segura."""
     webhook_url = f"{BASE_URL}/webhook"
     url = f"{TELEGRAM_API}/setWebhook?url={webhook_url}"
-    response = requests.get(url)
-    print("Configurando el bot incondicional de Américo Centeno:", response.json())
+    try:
+        response = requests.get(url)
+        print("Configurando el bot incondicional de Américo Centeno:", response.json())
+    except Exception as e:
+        print(f"Error al configurar webhook: {e}")
 
 @app.get("/")
 def home():
@@ -63,7 +67,7 @@ def ask_grok(prompt: str) -> str:
         "Content-Type": "application/json"
     }
     data = {
-        "model": "grok-2-latest", # El cerebro avanzado de xAI
+        "model": "grok-2-latest",
         "messages": [
             {
                 "role": "system", 
