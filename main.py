@@ -4,18 +4,20 @@ from fastapi import FastAPI, Request
 
 app = FastAPI()
 
-# Forzamos los valores correctos para evitar cualquier error de escritura en Render
+# Cargar variables de entorno desde Render
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 GROK_KEY = os.getenv("GROK_API_KEY")
-# El código corrige automáticamente la dirección aquí para que no falle jamás:
-BASE_URL = "https://onrender.com" 
+
+# PARCHE INTELIGENTE: Detecta automáticamente si tu Render es bot-americo-v4 o cualquier otro
+RENDER_NAME = os.getenv("RENDER_EXTERNAL_HOSTNAME", "://onrender.com")
+BASE_URL = f"https://{RENDER_NAME}"
 
 TELEGRAM_API = f"https://telegram.org{TOKEN}"
 GROK_API = "https://x.ai"
 
 @app.on_event("startup")
 def setup_webhook():
-    """Configura el webhook en Telegram de forma ultra segura."""
+    """Configura el webhook en Telegram de forma automática y ultra segura."""
     webhook_url = f"{BASE_URL}/webhook"
     url = f"{TELEGRAM_API}/setWebhook?url={webhook_url}"
     try:
